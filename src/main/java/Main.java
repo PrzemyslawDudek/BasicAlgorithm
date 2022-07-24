@@ -1,13 +1,17 @@
 import codewars.Digitize;
 import codewars.Vowels;
-import javafx.concurrent.Worker;
 
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
         System.out.println("Hello World!");
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Give a number");
+        int a = sc.nextInt();
+        System.out.println(a);
         Fibonacci fibonacci = new Fibonacci();
         Factorial factorial = new Factorial();
         System.out.println(fibonacci.getFibonacciNumber(-1));
