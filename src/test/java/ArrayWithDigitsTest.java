@@ -1,7 +1,11 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.StringJoiner;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,67 +19,34 @@ class ArrayWithDigitsTest {
     }
 
     private int createNumberFromDigitsArray(int[] array) {
-        for (int i = 0; i < array.length; i++) {
-            stringJoiner.add(String.valueOf(array[i]));
+        for (int j : array) {
+            stringJoiner.add(String.valueOf(j));
         }
         return Integer.parseInt(stringJoiner.toString());
     }
 
-    @Test
-    void testShouldReturnIncrementNumberWithTheSameDigitsCount() {
-        //given
-        int[] inputArray = new int[]{1,9,9};
 
-
-        //when
-        int[] outputArray = ArrayWithDigits.incrementNumber(inputArray);
-        int number = createNumberFromDigitsArray(outputArray);
-
-
-        //then
-        assertTrue(inputArray.length == outputArray.length);
-        assertTrue(outputArray[outputArray.length - 1] == 0);
-        assertTrue(outputArray[0] == 2);
-        assertEquals(200, number);
-
+    @SuppressWarnings({"unused", "ParametrizedTestMethod"})
+    private static Stream<Arguments> createCases() {
+        return Stream.of(
+              Arguments.of(new int[]{0}, new int[]{1}),
+              Arguments.of(new int[]{5}, new int[]{6}),
+              Arguments.of(new int[]{9}, new int[]{1,0}),
+              Arguments.of(new int[]{1,0}, new int[]{1,1}),
+              Arguments.of(new int[]{9,9}, new int[]{1,0,0}),
+              Arguments.of(new int[]{1,5,9}, new int[]{1,6,0}),
+              Arguments.of(new int[]{1,9,9}, new int[]{2,0,0}),
+              Arguments.of(new int[]{9,9,9}, new int[]{1,0,0,0})
+        );
     }
 
-    @Test
-    void testShouldReturnIncrementNumberWithTheSameDigitsCountWhenAnyDigitIsNine() {
+    @ParameterizedTest
+    @MethodSource("createCases")
+    void testCases(int[] input, int[] result) {
         //given
-        int[] inputArray = new int[]{1,8,8};
-
-
         //when
-        int[] outputArray = ArrayWithDigits.incrementNumber(inputArray);
-        int number = createNumberFromDigitsArray(outputArray);
-
-
         //then
-        assertTrue(inputArray.length == outputArray.length);
-        assertTrue(outputArray[outputArray.length - 1] == 9);
-        assertTrue(outputArray[0] == 1);
-        assertEquals(189, number);
-
-    }
-
-    @Test
-    void testShouldReturnIncrementNumberWithTheBiggerDigitsCount() {
-        //given
-        int[] inputArray = new int[]{9,9,9};
-
-
-        //when
-        int[] outputArray = ArrayWithDigits.incrementNumber(inputArray);
-        int number = createNumberFromDigitsArray(outputArray);
-
-
-        //then
-        assertTrue(inputArray.length + 1 == outputArray.length);
-        assertTrue(outputArray[outputArray.length - 1] == 0);
-        assertTrue(outputArray[0] == 1);
-        assertEquals(1000, number);
-
+        assertArrayEquals(result, ArrayWithDigits.incrementNumber(input));
     }
 
 }
