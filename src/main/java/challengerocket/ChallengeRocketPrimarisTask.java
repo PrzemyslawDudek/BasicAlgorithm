@@ -2,10 +2,7 @@ package challengerocket;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class ChallengeRocketPrimarisTask {
 
@@ -14,32 +11,49 @@ public class ChallengeRocketPrimarisTask {
         // your code here
         Map<String, Double> result = new HashMap<>();
 
+        Map<String, ProductGroup> productGroupMap = new HashMap<>();
+
         // create group map
         for (Product p : products) {
             String group = p.getGroup();
-            Double cost = p.getCost();
-            Double margin = getMarginForCategory(cost, categories, margins);
-            double price = round(cost * (1.0 + margin));
-            if (result.containsKey(group)) {
-                Double groupSum = result.get(group);
-                groupSum += price;
-                result.put(group, groupSum);
+            if (productGroupMap.containsKey(group)) {
+                productGroupMap.get(group).addProduct(p);
             } else {
-                result.put(group, price);
+                productGroupMap.put(group, new ProductGroup(p));
             }
         }
 
-        for (Map.Entry<String, Double> entry : result.entrySet()) {
-            String group = entry.getKey();
-            List<Product> productsByGroup = products.stream().filter(p -> p.getGroup().equals(group)).collect(Collectors.toList());
-            int productCount = productsByGroup.size();
-            Double roundAvg = round (entry.getValue() / productCount);
-            entry.setValue(roundAvg);
+        //Avg price for group
+        for (Map.Entry<String, ProductGroup> entry : productGroupMap.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().getAvrPriceFroProductGroup(categories, margins));
         }
 
         return result;
     }
 
+}
+
+class ProductGroup {
+    private final List<Product> products;
+
+    public ProductGroup(Product product) {
+        products = new ArrayList<>();
+        products.add(product);
+    }
+
+    public void addProduct(Product product) {
+        products.add(product);
+    }
+
+    public Double getAvrPriceFroProductGroup(List<Category> categories, Map<String, String> margins) {
+        double sumOfPriceInGroup = 0.0;
+        for (Product p : products) {
+            Double cost = p.getCost();
+            Double margin = getMarginForCategory(cost, categories, margins);
+            sumOfPriceInGroup += round(cost * (1.0 + margin));
+        }
+        return round(sumOfPriceInGroup / products.size());
+    }
 
     private Double getMarginForCategory(Double cost, List<Category> categories, Map<String, String> margins) {
         //get category by cost
@@ -58,7 +72,7 @@ public class ChallengeRocketPrimarisTask {
             throw new IllegalStateException("Can not match cost to the category");
         }
 
-        //getMargin
+        //getMargin for Category
         String margin = margins.get(category.getName());
         if (margin.endsWith("%")) {
             Double number = new Double(margin.replace("%", ""));
@@ -73,7 +87,6 @@ public class ChallengeRocketPrimarisTask {
         bd = bd.setScale(1, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
-
 }
 
 class Product {
